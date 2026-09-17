@@ -19,6 +19,7 @@ from sqlalchemy import select
 from app.database import Base, SessionLocal, engine
 from app import models
 from app.routers import admin, auth, matches, ratings, skills, swaps, users
+from app.security import hash_password
 
 # ---------------------------------------------------------------------
 # Build any missing tables on startup, so a fresh deployment works with
@@ -37,23 +38,81 @@ Base.metadata.create_all(bind=engine)
 # A "lifespan" function runs once when the server starts. Everything
 # before `yield` happens at startup; anything after runs at shutdown.
 # ---------------------------------------------------------------------
+def _seed_if_empty() -> None:
+    """Populate demo data, but only when there are no users at all."""
+    if os.environ.get("SEED_ON_START", "").lower() not in ("1", "true", "yes"):
+        return
+
+    db = SessionLocal()
+    try:
+        has_users = db.scalar(select(models.User).limit(1)) is not None
+    finally:
+        db.close()
+
+    if has_users:
+        return
+
+    try:
+        import seed
+        seed.main()
+        print("[startup] empty database detected -- demo data seeded")
+    except Exception as exc:  # never let seeding stop the server booting
+        print(f"[startup] seeding skipped: {exc}")
+
+
+def _ensure_admin() -> None:
+    """
+    Make sure at least one administrator exists.
+
+    The normal rule -- "the first account on an empty database becomes the
+    admin" -- cannot fire on a deployed site, because seeding fills the
+    database before anyone signs up. Without this, the admin panel would be
+    permanently unreachable.
+
+    Credentials come from environment variables, so they are never written
+    into the repository. Does nothing once an admin exists, so it is safe on
+    every restart.
+    """
+    email = os.environ.get("ADMIN_EMAIL", "").strip().lower()
+    password = os.environ.get("ADMIN_PASSWORD", "")
+
+    if not email:
+        return
+
+    db = SessionLocal()
+    try:
+        if db.scalar(select(models.User).where(models.User.is_admin.is_(True))):
+            return  # an admin already exists, nothing to do
+
+        existing = db.scalar(select(models.User).where(models.User.email == email))
+
+        if existing is not None:
+            existing.is_admin = True
+            if password:
+                existing.password_hash = hash_password(password)
+            db.commit()
+            print(f"[startup] promoted {email} to administrator")
+        elif password:
+            db.add(models.User(
+                name=os.environ.get("ADMIN_NAME", "Administrator"),
+                email=email,
+                password_hash=hash_password(password),
+                is_admin=True,
+            ))
+            db.commit()
+            print(f"[startup] created administrator account {email}")
+        else:
+            print("[startup] ADMIN_EMAIL set but ADMIN_PASSWORD missing -- no admin created")
+    except Exception as exc:
+        print(f"[startup] admin setup skipped: {exc}")
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    if os.environ.get("SEED_ON_START", "").lower() in ("1", "true", "yes"):
-        db = SessionLocal()
-        try:
-            has_users = db.scalar(select(models.User).limit(1)) is not None
-        finally:
-            db.close()
-
-        if not has_users:
-            try:
-                import seed
-                seed.main()
-                print("[startup] empty database detected -- demo data seeded")
-            except Exception as exc:  # never let seeding stop the server booting
-                print(f"[startup] seeding skipped: {exc}")
-
+    _seed_if_empty()
+    _ensure_admin()
     yield  # the server runs for as long as this is paused here
 
 
