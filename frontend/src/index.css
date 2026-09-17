@@ -1,0 +1,388 @@
+/* ==========================================================================
+   SkillSwap design system
+   --------------------------------------------------------------------------
+   Every colour, radius and spacing value lives here as a CSS variable.
+   Components never hardcode a hex code -- they reference these names.
+   Change a value here and the whole app re-themes.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* --- surfaces -------------------------------------------------------- */
+  /* Warm near-black, not pure #000. Pure black causes "halation" on OLED
+     screens (text appears to smear) and flattens the sense of depth.      */
+  --bg:            #131215;
+  --surface:       #1C1A20;   /* raised cards            */
+  --surface-2:     #232128;   /* inputs, nested panels   */
+  --surface-3:     #2A2730;   /* hover states            */
+  --border:        #2A2730;
+  --border-strong: #3A3642;
+
+  /* --- accent ---------------------------------------------------------- */
+  /* Used sparingly: primary buttons, active nav, links, match scores.
+     Its scarcity is what makes it read as meaningful.                     */
+  --accent:        #00E28A;
+  --accent-dim:    #00B26E;
+  --accent-fade:   rgba(0, 226, 138, 0.10);
+  --accent-edge:   rgba(0, 226, 138, 0.28);
+
+  /* --- semantic -------------------------------------------------------- */
+  --amber:         #FFB020;   /* star ratings only       */
+  --danger:        #FF5F56;
+  --danger-fade:   rgba(255, 95, 86, 0.10);
+  --info:          #5AC8FA;
+
+  /* --- type ------------------------------------------------------------ */
+  --text:          #F5F3F0;
+  --muted:         #A09BA8;
+  --faint:         #6E6879;
+
+  /* --- shape ----------------------------------------------------------- */
+  --r-sm: 8px;
+  --r:    12px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.25);
+
+  color-scheme: dark;
+}
+
+/* --------------------------------------------------------------- reset -- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { margin: 0; line-height: 1.25; font-weight: 600; letter-spacing: -0.015em; }
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.05rem; }
+p  { margin: 0; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* When a whole card is a link, underlining every line of text inside it
+   looks broken. Cards opt out of the underline entirely. */
+a.card, a.card:hover,
+a.card *, a.card *:hover { text-decoration: none; }
+
+/* Keyboard users must always be able to see what is focused. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------- utilities -- */
+.muted   { color: var(--muted); }
+.faint   { color: var(--faint); }
+.small   { font-size: 0.8rem; }
+.center  { text-align: center; }
+.row     { display: flex; align-items: center; gap: 10px; }
+.row-wrap{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.col     { display: flex; flex-direction: column; gap: 10px; }
+.between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.grow    { flex: 1; }
+.mt-1 { margin-top: 8px; }  .mt-2 { margin-top: 16px; } .mt-3 { margin-top: 24px; }
+.mb-1 { margin-bottom: 8px; } .mb-2 { margin-bottom: 16px; } .mb-3 { margin-bottom: 24px; }
+
+/* -------------------------------------------------------------- cards -- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 22px;
+}
+.card-tight { padding: 16px; }
+
+.card-hover {
+  transition: border-color .15s ease, transform .15s ease;
+}
+.card-hover:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+/* ------------------------------------------------------------ buttons -- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, opacity .15s ease;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* The one loud element on any given screen. */
+.btn-primary { background: var(--accent); color: #07110C; }
+.btn-primary:hover:not(:disabled) { background: var(--accent-dim); }
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.btn-ghost:hover:not(:disabled) { background: var(--surface-3); }
+
+.btn-danger { background: var(--danger-fade); border-color: var(--danger); color: var(--danger); }
+.btn-danger:hover:not(:disabled) { background: rgba(255,95,86,.18); }
+
+.btn-sm  { padding: 6px 12px; font-size: 0.82rem; }
+.btn-block { width: 100%; }
+
+/* --------------------------------------------------------------- form -- */
+.field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+.label { font-size: 0.85rem; font-weight: 500; color: var(--muted); }
+
+.input, .textarea, .select {
+  width: 100%;
+  padding: 11px 13px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.92rem;
+  transition: border-color .15s ease;
+}
+.input::placeholder, .textarea::placeholder { color: var(--faint); }
+.input:focus, .textarea:focus, .select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.textarea { resize: vertical; min-height: 88px; }
+
+/* --------------------------------------------------------------- pills -- */
+/* Deliberately NEUTRAL, not accent-coloured. If every skill tag were
+   green the accent would stop meaning anything.                          */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  font-size: 0.8rem;
+  color: var(--text);
+  white-space: nowrap;
+}
+.pill-offer  { border-color: var(--accent-edge); background: var(--accent-fade); }
+.pill-want   { border-color: var(--border-strong); }
+.pill-muted  { color: var(--muted); }
+
+.pill-x {
+  background: none; border: none; padding: 0;
+  color: var(--faint); cursor: pointer; font-size: 1rem; line-height: 1;
+}
+.pill-x:hover { color: var(--danger); }
+
+/* ------------------------------------------------------------- badges -- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+}
+.badge-pending   { color: var(--amber);  border-color: rgba(255,176,32,.35); }
+.badge-accepted  { color: var(--accent); border-color: var(--accent-edge); }
+.badge-completed { color: var(--info);   border-color: rgba(90,200,250,.35); }
+.badge-rejected,
+.badge-cancelled { color: var(--faint); }
+.badge-admin     { color: var(--accent); border-color: var(--accent-edge); }
+.badge-banned    { color: var(--danger); border-color: rgba(255,95,86,.35); }
+
+/* ------------------------------------------------------------ avatars -- */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+  object-fit: cover;
+}
+.avatar-sm { width: 32px; height: 32px; font-size: 0.8rem; }
+.avatar-lg { width: 64px; height: 64px; font-size: 1.4rem; }
+
+/* -------------------------------------------------------------- alerts -- */
+.alert {
+  padding: 11px 14px;
+  border-radius: var(--r-sm);
+  font-size: 0.88rem;
+  border: 1px solid;
+}
+.alert-error   { background: var(--danger-fade); border-color: rgba(255,95,86,.4); color: #FF8B84; }
+.alert-success { background: var(--accent-fade); border-color: var(--accent-edge); color: var(--accent); }
+.alert-info    { background: var(--surface-2);   border-color: var(--border);      color: var(--muted); }
+
+/* --------------------------------------------------------------- stars -- */
+.stars { display: inline-flex; gap: 2px; color: var(--amber); font-size: 0.95rem; letter-spacing: 1px; }
+.star-empty { color: var(--faint); }
+
+.star-input { background: none; border: none; cursor: pointer; font-size: 1.5rem; padding: 0 2px; color: var(--faint); }
+.star-input.on { color: var(--amber); }
+
+/* ---------------------------------------------------------------- nav -- */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(19,18,21,.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: 1160px; margin: 0 auto;
+  padding: 0 22px; height: 60px;
+  display: flex; align-items: center; gap: 26px;
+}
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 1.02rem; color: var(--text); }
+.brand:hover { text-decoration: none; }
+.brand-mark {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--accent); color: #07110C;
+  display: grid; place-items: center; font-size: 15px; font-weight: 700;
+}
+.nav-links { display: flex; gap: 3px; flex: 1; }
+.nav-link {
+  padding: 7px 12px; border-radius: var(--r-sm);
+  color: var(--muted); font-size: 0.89rem; font-weight: 500;
+}
+.nav-link:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
+.nav-link.active { color: var(--accent); background: var(--accent-fade); }
+
+.nav-count {
+  display: inline-grid; place-items: center;
+  min-width: 17px; height: 17px; padding: 0 5px; margin-left: 6px;
+  border-radius: var(--r-pill);
+  background: var(--accent); color: #07110C;
+  font-size: 0.66rem; font-weight: 700;
+}
+
+/* -------------------------------------------------------------- shell -- */
+.page { max-width: 1160px; margin: 0 auto; padding: 30px 22px 70px; }
+.page-narrow { max-width: 720px; }
+
+.page-head { margin-bottom: 24px; }
+.page-head h1 { margin-bottom: 5px; }
+
+/* ------------------------------------------------------------- centred -- */
+/* The signup / login / profile-setup screens from the reference design. */
+.auth-wrap {
+  min-height: 100vh;
+  display: grid; place-items: center;
+  padding: 36px 20px;
+}
+.auth-card { width: 100%; max-width: 430px; }
+.auth-logo { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 22px; }
+
+/* --------------------------------------------------------------- grid -- */
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); }
+
+/* --------------------------------------------------------------- stat -- */
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+.stat-value { font-size: 1.65rem; font-weight: 700; letter-spacing: -.02em; }
+.stat-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+
+/* -------------------------------------------------------------- table -- */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--r); }
+.table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 620px; }
+.table th, .table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+.table th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: .04em; background: var(--surface-2); }
+.table tr:last-child td { border-bottom: none; }
+.table tbody tr:hover { background: var(--surface-2); }
+
+/* --------------------------------------------------------------- tabs -- */
+.tabs { display: flex; gap: 3px; border-bottom: 1px solid var(--border); margin-bottom: 22px; flex-wrap: wrap; }
+.tab {
+  padding: 9px 15px; background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--muted); font: inherit; font-size: 0.89rem; font-weight: 500; cursor: pointer;
+  margin-bottom: -1px;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ------------------------------------------------------------- empty -- */
+.empty { text-align: center; padding: 48px 22px; color: var(--muted); }
+.empty-icon { font-size: 2rem; margin-bottom: 10px; opacity: .55; }
+
+/* ------------------------------------------------------------- match -- */
+.match-score {
+  display: inline-flex; align-items: baseline; gap: 3px;
+  color: var(--accent); font-weight: 700; font-size: 1.05rem;
+}
+.match-score span { font-size: 0.7rem; font-weight: 500; color: var(--muted); }
+
+.match-bar { height: 4px; border-radius: var(--r-pill); background: var(--surface-3); overflow: hidden; }
+.match-bar-fill { height: 100%; background: var(--accent); border-radius: var(--r-pill); }
+
+/* ------------------------------------------------------------ spinner -- */
+.spinner {
+  width: 17px; height: 17px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px; color: var(--muted); }
+
+/* -------------------------------------------------------------- toast -- */
+.toast {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  z-index: 200;
+  padding: 11px 18px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow);
+  font-size: 0.88rem;
+  animation: rise .2s ease;
+}
+.toast-error { border-color: rgba(255,95,86,.5); color: #FF8B84; }
+.toast-success { border-color: var(--accent-edge); color: var(--accent); }
+@keyframes rise { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* ------------------------------------------------------------- mobile -- */
+@media (max-width: 720px) {
+  .nav-inner { gap: 12px; padding: 0 14px; }
+  .nav-links { overflow-x: auto; }
+  .nav-link { padding: 7px 9px; font-size: 0.83rem; }
+  .page { padding: 20px 14px 60px; }
+  .card { padding: 17px; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
