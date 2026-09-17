@@ -17,8 +17,15 @@ from .database import Base
 
 
 def utcnow() -> datetime:
-    """Current time in UTC. Used as the default for 'created_at' columns."""
-    return datetime.now(timezone.utc)
+    """
+    Current time in UTC, with the timezone label removed.
+
+    Why strip it: SQLite silently drops timezone information, but PostgreSQL
+    does not. Storing a plain UTC value means both databases hold exactly the
+    same thing, so behaviour never differs between your laptop and the
+    deployed site.
+    """
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 # ---------------------------------------------------------------- users
