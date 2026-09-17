@@ -114,6 +114,24 @@ app.include_router(admin.router)
 app.include_router(admin.public_router)
 
 
+@app.get("/", tags=["system"])
+def root():
+    """
+    A friendly landing response for the bare URL.
+
+    Without this, visiting the root address returns {"detail":"Not Found"},
+    which looks broken even though the API is running perfectly. This points
+    whoever opened it at something useful instead.
+    """
+    return {
+        "service": "SkillSwap API",
+        "status": "running",
+        "docs": "/docs",
+        "health": "/api/health",
+        "message": "This is the backend API. The web app is deployed separately.",
+    }
+
+
 @app.get("/api/health", tags=["system"])
 def health_check():
     """
