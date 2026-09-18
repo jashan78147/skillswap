@@ -6,6 +6,20 @@ once it is done. No money changes hands — skills are traded directly.
 
 Built for the Odoo x LPU Jalandhar Hackathon.
 
+## Live demo
+
+| | |
+|---|---|
+| **Web app** | <https://skillswap-zeta-two.vercel.app> |
+| **API** | <https://skillswap-api-158n.onrender.com> |
+| **API docs** | <https://skillswap-api-158n.onrender.com/docs> |
+
+> The API runs on a free tier that sleeps after ~15 minutes of inactivity.
+> The first request can take up to 50 seconds while it wakes up; everything
+> after that is fast. Opening the API docs link first warms it up.
+
+Sign in with any demo account below, password `demo123`.
+
 ---
 
 ## What it does
@@ -47,6 +61,53 @@ The check runs on the server, so it cannot be bypassed from the browser.
 
 No external AI service is used. Matching is pure skill-overlap arithmetic that
 runs locally, so it never fails because of a network problem.
+
+---
+
+## Architecture
+
+| Layer | Technology | Hosted on | Cost |
+|---|---|---|---|
+| Source code | Git | GitHub | Free |
+| Web app | React 19 + Vite | Vercel (Hobby) | Free |
+| API | FastAPI, Python 3.12 | Render (Free) | Free |
+| Database | PostgreSQL 17 | Neon (Free) | Free |
+
+```
+Browser ──► Vercel (React) ──HTTPS──► Render (FastAPI) ──TLS──► Neon (PostgreSQL)
+            static files              logic + auth              persistent storage
+```
+
+### Where data lives
+
+| Data | Stored in | Notes |
+|---|---|---|
+| Users, skills, swaps, ratings | PostgreSQL (Neon) in production; SQLite file locally | Chosen automatically by whether `DATABASE_URL` is set |
+| Passwords | `users.password_hash` | bcrypt, one-way — cannot be reversed |
+| Login token | Browser `localStorage` | Expires after 7 days |
+| Secrets | Host environment variables | Never committed to Git |
+
+Nothing is kept in server memory between requests, so the API can restart at
+any time without losing state.
+
+### Environment variables
+
+| Key | Set on | Purpose |
+|---|---|---|
+| `DATABASE_URL` | Render | PostgreSQL connection string. Unset locally, so SQLite is used |
+| `SKILLSWAP_SECRET` | Render | Signs JWT login tokens |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Render | Creates or promotes an administrator on startup |
+| `SEED_ON_START` | Render | Seeds demo data, but only if the database is empty |
+| `VITE_API_URL` | Vercel | Tells the React app where the API lives |
+
+### Known limitations
+
+| Limitation | Effect | Would fix with |
+|---|---|---|
+| Free tier sleeps when idle | First request after ~15 min takes up to 50s | A paid instance, or an uptime pinger |
+| No schema migrations | Adding a column needs manual intervention | Alembic |
+| No rate limiting on login | Password guessing is possible | A rate limiter such as slowapi |
+| Admins can see all contact details | Privacy trade-off | Deliberate, for moderation |
 
 ---
 
